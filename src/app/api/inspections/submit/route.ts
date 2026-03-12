@@ -77,15 +77,14 @@ export async function POST(request: Request) {
       .eq('id', storeId)
       .single();
 
-    if (store && store.report_emails?.length > 0) {
-      const fullPdfUrl = `${request.headers.get('origin') || ''}/api/pdf/${inspection.id}`;
-      await sendInspectionReport(
-        store.report_emails,
-        store.name,
-        fullPdfUrl,
-        inspectorEmail || user.email!
-      );
+    // Send email to inspector + store report_emails
+    const inspector = inspectorEmail || user.email!;
+    const recipients = [inspector];
+    if (store?.report_emails?.length > 0) {
+      recipients.push(...store.report_emails.filter((e: string) => e !== inspector));
     }
+    const fullPdfUrl = `${request.headers.get('origin') || ''}/api/pdf/${inspection.id}`;
+    await sendInspectionReport(recipients, store?.name || '', fullPdfUrl, inspector);
 
     return NextResponse.json({ inspectionId: inspection.id });
   } catch (err: any) {

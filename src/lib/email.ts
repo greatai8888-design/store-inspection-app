@@ -25,7 +25,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from: 'Store Inspection <noreply@yourdomain.com>',
+      from: 'Store Inspection <onboarding@resend.dev>',
       to,
       subject,
       html,
