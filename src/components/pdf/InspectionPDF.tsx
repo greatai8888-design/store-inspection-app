@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
 // Register a font that supports Chinese characters
 Font.register({
@@ -178,6 +178,14 @@ export function InspectionPDF(data: PDFData) {
                   </View>
                   {item.notes && (
                     <Text style={styles.notes}>備註：{item.notes}</Text>
+                  )}
+                  {item.photo_url && item.photo_url !== 'uploading' && (
+                    <View style={{ paddingHorizontal: 8, paddingBottom: 6 }}>
+                      <Image
+                        src={item.photo_url}
+                        style={{ width: 160, height: 120, objectFit: 'cover', borderRadius: 4 }}
+                      />
+                    </View>
                   )}
                 </View>
               );
