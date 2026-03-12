@@ -86,12 +86,27 @@ export default function InspectPage() {
     const ext = file.name.split('.').pop() || 'jpg';
     const path = `${storeId}/${Date.now()}_${itemId}.${ext}`;
 
+    // Show uploading state
+    setFormData((prev) => {
+      const next = new Map(prev);
+      const item = next.get(itemId)!;
+      next.set(itemId, { ...item, photoUrl: 'uploading' });
+      return next;
+    });
+
     const { data, error } = await supabase.storage
       .from('inspection-photos')
       .upload(path, file, { contentType: file.type });
 
     if (error) {
       console.error('Upload failed:', error);
+      setError(`照片上傳失敗: ${error.message}`);
+      setFormData((prev) => {
+        const next = new Map(prev);
+        const item = next.get(itemId)!;
+        next.set(itemId, { ...item, photoUrl: null });
+        return next;
+      });
       return;
     }
 
