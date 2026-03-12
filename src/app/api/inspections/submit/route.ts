@@ -5,16 +5,11 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: '未登入' }, { status: 401 });
-    }
 
     const body = await request.json();
     const { storeId, inspectorEmail, items } = body;
 
-    if (!storeId || !items || !Array.isArray(items)) {
+    if (!storeId || !inspectorEmail || !items || !Array.isArray(items)) {
       return NextResponse.json({ error: '資料格式錯誤' }, { status: 400 });
     }
 
@@ -33,7 +28,7 @@ export async function POST(request: Request) {
       .from('inspections')
       .insert({
         store_id: storeId,
-        inspector_email: inspectorEmail || user.email,
+        inspector_email: inspectorEmail,
       })
       .select()
       .single();
@@ -78,13 +73,12 @@ export async function POST(request: Request) {
       .single();
 
     // Send email to inspector + store report_emails
-    const inspector = inspectorEmail || user.email!;
-    const recipients = [inspector];
+    const recipients = [inspectorEmail];
     if (store?.report_emails && store.report_emails.length > 0) {
-      recipients.push(...(store.report_emails as string[]).filter((e: string) => e !== inspector));
+      recipients.push(...(store.report_emails as string[]).filter((e: string) => e !== inspectorEmail));
     }
     const fullPdfUrl = `${request.headers.get('origin') || ''}/api/pdf/${inspection.id}`;
-    await sendInspectionReport(recipients, store?.name || '', fullPdfUrl, inspector);
+    await sendInspectionReport(recipients, store?.name || '', fullPdfUrl, inspectorEmail);
 
     return NextResponse.json({ inspectionId: inspection.id });
   } catch (err: any) {

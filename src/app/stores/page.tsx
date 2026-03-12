@@ -25,8 +25,8 @@ export default function StoresPage() {
     fetchStores();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem('inspectorEmail');
     router.push('/login');
   };
 
