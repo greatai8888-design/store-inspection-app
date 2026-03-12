@@ -80,8 +80,8 @@ export async function POST(request: Request) {
     // Send email to inspector + store report_emails
     const inspector = inspectorEmail || user.email!;
     const recipients = [inspector];
-    if (store?.report_emails?.length > 0) {
-      recipients.push(...store.report_emails.filter((e: string) => e !== inspector));
+    if (store?.report_emails && store.report_emails.length > 0) {
+      recipients.push(...(store.report_emails as string[]).filter((e: string) => e !== inspector));
     }
     const fullPdfUrl = `${request.headers.get('origin') || ''}/api/pdf/${inspection.id}`;
     await sendInspectionReport(recipients, store?.name || '', fullPdfUrl, inspector);
